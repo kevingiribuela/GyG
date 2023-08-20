@@ -12,5 +12,4 @@ We're two electronics engineer, both proudly graduated from Universidad Nacional
 ## Why?
 *Why not?*
 
-<img src="images/logo_fi.jpg"  width="200" height="200"> 
-<img src="images/logo_unlp.jpg"  width="200" height="200">
+<img src="images/logo_fi.jpg"  width="200" height="200"> <img src="images/logo_unlp.jpg"  width="200" height="200">
