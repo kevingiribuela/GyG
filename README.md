@@ -10,5 +10,7 @@ Please, feel free to give us a feedback if you think that is necessary, we'll be
 We're two electronics engineer, both proudly graduated from Universidad Nacional de La Plata.
 
 ## Why?
-Why not?
+*Why not?*
 
+<img src="images/logo_fi.jpg"  width="200" height="200"> 
+<img src="images/logo_unlp.jpg"  width="200" height="200">
