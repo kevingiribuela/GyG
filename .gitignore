@@ -1,6 +1,6 @@
 venv/
-ESP32/AP-WebServer/.devcontainer/
-ESP32/AP-WebServer/.vscode/
 ESP32/AP-WebServer/sdkconfig
 ESP32/AP-WebServer/sdkconfig.ci
 ESP32/AP-WebServer/build/
+ESP32/AP-WebServer/.vscode/
+ESP32/AP-WebServer/.devcontainer/
