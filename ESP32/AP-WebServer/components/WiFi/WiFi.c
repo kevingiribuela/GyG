@@ -6,8 +6,8 @@ extern EventGroupHandle_t s_wifi_event_group;
 extern bool wifi_ok, start_connection;
 extern nvs_handle_t my_handle;
 
-#define WIFI_SSID       "Air Quality"
-#define WIFI_PASS       "defiunlp2022"
+#define WIFI_SSID       "UNLP - GyG"
+#define WIFI_PASS       "defiunlp"
 #define WIFI_CHANNEL    1
 #define MAX_STA_CONN    1
 
@@ -51,14 +51,14 @@ esp_netif_t* wifi_init_sta(void){
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();            // Load default WiFi structure
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));                           // Initialize WiFi
     
-    nvs_open("wifi",NVS_READWRITE, &my_handle);         // Open the nvs in read/write mode
+    nvs_open("wifi",NVS_READWRITE, &my_handle);             // Open the nvs in read/write mode
     size_t required_size;
     
-    nvs_get_str(my_handle, "SSID", NULL, &required_size);  // Get the required size, and value of the SSID from NVS
+    nvs_get_str(my_handle, "SSID", NULL, &required_size);   // Get the required size, and value of the SSID from NVS
     char *wifi_ssid = malloc(required_size);
     nvs_get_str(my_handle, "SSID", wifi_ssid, &required_size);
     
-    nvs_get_str(my_handle, "PSWD", NULL, &required_size);  // Get the required size, and value of the PSWD from NVS
+    nvs_get_str(my_handle, "PSWD", NULL, &required_size);   // Get the required size, and value of the PSWD from NVS
     char *wifi_pswd = malloc(required_size);
     nvs_get_str(my_handle, "PSWD", wifi_pswd, &required_size);
 

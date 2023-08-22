@@ -45,6 +45,7 @@ const httpd_uri_t homepage = {
 
     httpd_req_get_url_query_str(req, query, query_len);
     query = urlDecode(query);
+    
     /* Preparing the NVS */
     nvs_open("wifi",NVS_READWRITE, &my_handle);
 
@@ -157,8 +158,6 @@ char *urlDecode(const char *str) {
           return dStr;
 
         if(isxdigit((int)dStr[i+1]) && isxdigit((int)dStr[i+2])) {
-
-          //d = 0;
 
           /* combine the next to numbers into one */
           eStr[0] = dStr[i+1];

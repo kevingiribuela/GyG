@@ -21,6 +21,11 @@
 #include "lwip/dns.h"
 #include "lwip/netdb.h"
 
+#include "driver/gpio.h"
+
+// LED
+#define BLUE_LED 2
+
 #define WIFI_CONNECTED_BIT BIT0 // WiFi connected bit
 #define WIFI_FAIL_BIT      BIT1 // WiFi fail bit
 
@@ -114,6 +119,9 @@ void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id
 
 void app_main(void)
 {
+    gpio_reset_pin(BLUE_LED);
+    gpio_set_direction(BLUE_LED, GPIO_MODE_OUTPUT);
+
     int time_out=TIME_OUT_WIFI;
 
     static httpd_handle_t server = NULL;
@@ -193,6 +201,9 @@ void app_main(void)
 
         while(loop){
             if(wifi_ok){
+                gpio_set_level(BLUE_LED, 1);
+                vTaskDelay(1000/portTICK_PERIOD_MS);
+                gpio_set_level(BLUE_LED, 0);
                 vTaskDelay(1000/portTICK_PERIOD_MS);
             }
             /* If something is wrong with WiFi, externals handlers set wifi_ok to FALSE, and then wait
