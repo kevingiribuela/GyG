@@ -33,3 +33,8 @@ If you followed that steps, you should be able to flash your ESP32 and generate 
 
 ## What if my router lost connection for a minute or more?
 If you lost connection no problem, the code is *robust* in that sense since if the connection is lost it will try to reconnect to the same network at least MAX_RETRY times (where MAX_RETRY is a macro defined at the top of the main) before the AP is seted again.
+
+## What if I don't provide any data to the WebServer?
+Well, you must provided it at least once. Otherwise garbage data will be loaded in ROM the first time you run the code.
+
+In case that you already provided data to the webserver, if the ESP32 detects innactivity the first two minutes, it will try to connect to the last network (that's why important to load data at least once!!).
