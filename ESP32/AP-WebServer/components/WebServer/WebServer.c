@@ -81,7 +81,6 @@ const httpd_uri_t homepage = {
     nvs_close(my_handle);
     free(query);
     free(buff);
-    parametters = true;
     return ESP_OK;
 }
 const httpd_uri_t data = {

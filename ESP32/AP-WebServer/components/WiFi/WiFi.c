@@ -2,8 +2,6 @@
 #include "WiFi.h"
 
 /* FreeRTOS event group to signal when we are connected*/
-extern EventGroupHandle_t s_wifi_event_group;
-extern bool wifi_ok, start_connection;
 extern nvs_handle_t my_handle;
 
 #define WIFI_SSID       "UNLP - GyG"
@@ -86,18 +84,6 @@ esp_netif_t* wifi_init_sta(void){
     esp_wifi_set_config(WIFI_IF_STA, &wifi_config);     // Set WiFi structure configuration  
     esp_wifi_start();                                   // Start WiFi
     
-    /* Waiting until the connection is established (WIFI_CONNECTED_BIT) */
-    EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group, WIFI_CONNECTED_BIT | WIFI_FAIL_BIT, pdTRUE, pdFALSE, pdMS_TO_TICKS(10000));
-    if(bits & WIFI_CONNECTED_BIT){
-        wifi_ok = true;
-    }
-    else if(bits & WIFI_FAIL_BIT){
-        wifi_ok = false;
-    }
-    else{
-        wifi_ok = false;
-    }
-
     nvs_close(my_handle);
     free(wifi_pswd);
     free(wifi_ssid);
