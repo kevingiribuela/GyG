@@ -1,6 +1,6 @@
 # GyG repository
 ## What you'll find in this repository? 
-This repository was made with the purpose of work in differents projects at the same time. On the other hand, the MAIN purporse of this repository lies on old experience as student...
+This repository was made with the purpose of work in different projects at the same time. On the other hand, the MAIN purpose of this repository lies on old experience as student...
 
 So, if you think that there's something wrong in the code/documentation probably is wrong.
 
