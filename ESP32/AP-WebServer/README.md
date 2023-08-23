@@ -20,16 +20,16 @@ This is done by connecting with any device such a smartphone, laptop, etc, to th
 Then fill the textbox with the WiFi network data and press "Enviar datos". After submit the data, the ESP32 will turn off the AP and will try to connect in STA mode with the data entered. It's important to know that the data is stored in ROM, so if the ESP32 suddenly turn off for some reason, when you energyze it again, it will try to connect with the last network after 2 minutes of innactivity.
 
 ## How to flash the program in MY computer??
-It's well known that Espressif has many many *many* problems in his documentation and can cause an important confussion if you are not familiarized with the environment. So that I decided to make a kind a recipe to run this program on your computer/esp32.
+It's well known that Espressif has many many *many* problems in their documentation and can cause an importants confussions if you are not familiarized with the environment. So that I decided to make a kind a recipe to run this program on your computer/esp32.
 
 I'll assume that you already have installed the espressif extension for VSCode.
 
 * Create a new project using the "Hello World!" template. 
-* Build the project. This is because the first time you create a project, all files and tools (such as CMake and Ninja) need to be launched at least once to create the project.
-* Now that you built the project, type "ctrl+shift+p" in VSCode to open the command palette and type: "Create new component" and create TWO components.
-* The espressif tool will ask you for a name to that component, you MUST name it "WiFi" and "WebServer". I insist with MUST because all CMakeLists and libraries are hardcoded with that names.
-* Then copy&paste the scripts of the news components. DON'T FORGET THE CMakeLists.
-* Finally, copy&past the main.c and CMakeLists and build again.
+* **Build the project!!**. This is because the first time you create a project, all files and tools (such as CMake and Ninja) need to be launched at least once to create the project.
+* Now that you built the project, type "ctrl+shift+p" in VSCode to open the *Command Palette* and type: "Create new component" and create TWO components.
+* The espressif tool will ask you for a name to the components, you MUST name it "WiFi" and "WebServer". I insist with MUST because all CMakeLists and libraries are hardcoded with that names.
+* Then copy&paste the scripts of the news components. DON'T FORGET THE CMakeLists.txt.
+* Finally, copy&past the main.c and CMakeLists.txt and build again.
 
 If you followed that steps, you should be able to flash your ESP32 and generate the WebServer. The SSID of the network is *GyG* by default, and the password is: *defiunlp* also by default (note that **defiunlp** is "**D**epartamento de **E**lectrotecnia - **F**acultad de **I**ngeniera - **U**niversidad **N**acional de **L**a **P**lata") both parametters are macros defined in *WiFi.c*. Once you entered the data, the ESP32 will blink the built in blue LED indicating that everything is fine.
 
