@@ -1,18 +1,10 @@
 #include <stdio.h>
 #include "WiFi.h"
 
-/* FreeRTOS event group to signal when we are connected*/
-extern nvs_handle_t my_handle;
-
 #define WIFI_SSID       "UNLP - GyG"
 #define WIFI_PASS       "defiunlp"
 #define WIFI_CHANNEL    1
 #define MAX_STA_CONN    1
-
-
-#define WIFI_CONNECTED_BIT BIT0
-#define WIFI_FAIL_BIT      BIT1
-
 
 esp_netif_t * wifi_init_softap(void){
     // It is recommended firstable initialize the Wi-Fi module with the default configuration
@@ -35,10 +27,6 @@ esp_netif_t * wifi_init_softap(void){
     esp_wifi_set_config(WIFI_IF_AP, &wifi_config); // Set WiFi structure configuration
     esp_wifi_start();                              // Start WiFi
 
-    printf( "Inicialización de acces point exitosa!\n");
-    printf("SSID: %s\n", WIFI_SSID);
-    printf("PSWD: %s\n", WIFI_PASS);
-    printf("CANAL: %d\n", WIFI_CHANNEL);
     return wifi_object;
 }
 
@@ -49,6 +37,7 @@ esp_netif_t* wifi_init_sta(void){
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();            // Load default WiFi structure
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));                           // Initialize WiFi
     
+    nvs_handle_t my_handle;
     nvs_open("wifi",NVS_READWRITE, &my_handle);             // Open the nvs in read/write mode
     size_t required_size;
     

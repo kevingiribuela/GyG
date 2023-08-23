@@ -1,10 +1,12 @@
 # TO DO:
 
-* Embeber archivo HTML en webserver para evitar codigo HTML dentro del código en C y modularizar el código.
-* Simplificar y COMPLETAR el decodificar de URL.
-* Analizar una posible reducción en cantidad de handlers que tiene el loop event.
-* Limpiar main, modularizar código para facilitar lectura (**en proceso**).
-* Falta modificar variable parametters por dentro del WebServer para evitar el loop infinito!!!
+- [x] Eliminar la mayor cantidad de variables globales posible.
+- [ ] Embeber archivo HTML en webserver para evitar codigo HTML dentro del código en C (WebServer.c) y modularizar el código. Al final del main.c aparece código de ejemplo copiado y pegado de la página oficial de espressif.
+- [ ] Simplificar y COMPLETAR el decodificar de URL.
+- [x] Analizar una posible reducción en cantidad de handlers que tiene el loop event .
+- [x] Limpiar main, modularizar código para facilitar lectura.
+- [x] Modificar variable parametters por dentro del WebServer para evitar el loop infinito
+- [ ] Buscar la forma de que parametters NO sea una variable global dado que la usa WebServer para indicar que se apretó el botón de enviar datos.
 
 <img src="doc/ayuda.png" width="200" height="200">
 
@@ -29,7 +31,7 @@ I'll assume that you already have installed the espressif extension for VSCode.
 * Then copy&paste the scripts of the news components. DON'T FORGET THE CMakeLists.
 * Finally, copy&past the main.c and CMakeLists and build again.
 
-If you followed that steps, you should be able to flash your ESP32 and generate the WebServer. The SSID of the network is *GyG* by default, and the password is: *defiunlp* also by default (note that **defiunlp** is "**D**epartamento de **E**lectrotecnia - **F**acultad de **I**ngeniera - **U**niversidad **N**acional de **L**a **P**lata"). Once you entered the data, the ESP32 will blink the built in blue LED indicating that everything is fine.
+If you followed that steps, you should be able to flash your ESP32 and generate the WebServer. The SSID of the network is *GyG* by default, and the password is: *defiunlp* also by default (note that **defiunlp** is "**D**epartamento de **E**lectrotecnia - **F**acultad de **I**ngeniera - **U**niversidad **N**acional de **L**a **P**lata") both parametters are macros defined in *WiFi.c*. Once you entered the data, the ESP32 will blink the built in blue LED indicating that everything is fine.
 
 ## What if my router lost connection for a minute or more?
 If you lost connection no problem, the code is *robust* in that sense since if the connection is lost it will try to reconnect to the same network at least MAX_RETRY times (where MAX_RETRY is a macro defined at the top of the main) before the AP is seted again.

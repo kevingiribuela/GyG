@@ -26,95 +26,103 @@
 // LED
 #define BLUE_LED 2              // Built-in LED in ESP32
 
-#define WIFI_CONNECTED_BIT BIT0 // WiFi connected bit
-#define WIFI_FAIL_BIT      BIT1 // WiFi fail bit
+#define WIFI_CONNECTED_BIT      BIT0 // WiFi connected bit
+#define WIFI_DISCONNECTED_BIT   BIT1 // WiFi disconnected bit
+#define WIFI_FAIL_BIT           BIT2 // WiFi fail bit
 
 #define MAX_RETRY     20        // Number of retry to connect to WiFi
 #define TIME_OUT_WIFI 120       // Seconds before connect with default configuration
 
 // ======================= GLOBAL VARIABLES ============================
-bool wifi_ok = false;
-bool loop = false;
-int retry_conn = 0;
-size_t required_size;
+bool loop = false; bool parametters = false;
 
-nvs_handle_t my_handle;
+
 EventGroupHandle_t s_wifi_event_group;
-esp_netif_t *sta_object, *ap_object;
 // =====================================================================
 
 void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data){
+    static int retry_conn = 0;
     if(event_base == WIFI_EVENT){   // If the event is a WiFi event
-        switch (event_id)
-        {
+        switch (event_id){
             case WIFI_EVENT_STA_START:{         // If the ESP started as STA
-                    // vTaskDelay(100/portTICK_PERIOD_MS);
-                    printf("STARTING AS STA...\n");
-                    esp_err_t wifi = esp_wifi_connect();            // Connecting to WiFi
+                    printf("STARTED AS STA...\n");
                     printf("CONNECTING TO WIFI...\n");
+                    esp_err_t wifi = esp_wifi_connect();    // Connecting to WiFi
                     if(wifi!=ESP_OK){
                         xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
-                        printf("WIFI NOT CONNECTD...\n");
-                    }
-                    else{
-                        printf("WIFI CONNECTED...\n\n");
+                        printf("WIFI NOT CONNECTED...\n");
                     }
                     break;
                 }
-
             case WIFI_EVENT_STA_CONNECTED:{     // If the ESP is connected to an AP
                 printf("SUCCESSFULLY CONNECTED TO AP!\n");
+                printf("WAITING FOR IP...\n");
                 break;
             }
-
             case WIFI_EVENT_STA_DISCONNECTED:{  // If the ESP is disconnected from an AP
-                wifi_ok=false;
-                if(retry_conn<MAX_RETRY && loop){
+                printf("DISCONNECTED FROM AP!\n");
+                xEventGroupSetBits(s_wifi_event_group, WIFI_DISCONNECTED_BIT);
+                
+                if(retry_conn<MAX_RETRY){
                     esp_wifi_connect(); // Trying to reconnect
                     retry_conn++;       // Increment retry counter
                     printf("RETRY CONNECTION N°: %d OF %d\n", retry_conn, MAX_RETRY);
-                    // for(int i=0; i<5;i++){
-                    //     vTaskDelay(1000/portTICK_PERIOD_MS);
-                    // }
                 }
                 else{
+                    printf("MAX RETRY REACHED! RESETING LOOP...\n");
                     xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);  // Flag to reset ESP
                     retry_conn=0;                                           // Reset retry counter
                 }
                 break;
             }
-            
             case WIFI_EVENT_AP_START:{          // If the ESP started as AP
-                printf("STARTING AS AP...\n");
-                // vTaskDelay(1000/portTICK_PERIOD_MS);
+                printf("STARTED AS AP...\n");
                 break;
             }
-
             case WIFI_EVENT_AP_STOP:{           // If the ESP stopped as AP
-                printf("STOPPING AS AP...\n");
-                // vTaskDelay(1000/portTICK_PERIOD_MS);
+                printf("STOPED AS AP...\n");
                 break;
             }
-            
-            default:
+            default:{
                 break;
+            }
         }
     }
     else if(event_base == IP_EVENT){                        // If the event is an IP event
-        if(event_id == IP_EVENT_STA_GOT_IP){                // If the ESP obtained an IP address
-            xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT); // Set flag to continue
-            printf("IP OBTAINED!\n\n");
-            wifi_ok=true;                                               // Set wifi_ok flag to TRUE
-            retry_conn=0;                                               // Reset retry counter
-        }      
+        switch (event_id){
+            case IP_EVENT_STA_GOT_IP:{
+                xEventGroupClearBits(s_wifi_event_group, WIFI_DISCONNECTED_BIT);
+                xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
+                printf("IP OBTAINED!\n\n");
+                retry_conn=0;       // Reset retry counter
+                break;
+            }
+            case IP_EVENT_STA_LOST_IP:{
+                xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
+                printf("IP LOST!\n");
+                break;
+            }
+            default:{
+                break;
+            }
+        }
     }
 }
 
+void wait_wifi_event(EventGroupHandle_t, bool*, bool*);
+
+
 void app_main(void)
 {
+    bool wifi_ok = false; 
+    int time_out = TIME_OUT_WIFI;
+
     static httpd_handle_t server    = NULL;
     s_wifi_event_group              = xEventGroupCreate(); // Create event group for wifi events
    
+    gpio_reset_pin(BLUE_LED);
+    gpio_set_direction(BLUE_LED, GPIO_MODE_OUTPUT);
+
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
       ESP_ERROR_CHECK(nvs_flash_erase());
@@ -134,23 +142,13 @@ void app_main(void)
 
     esp_event_handler_instance_t instance_got_ip;
     esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &wifi_event_handler, NULL, &instance_got_ip);
-    
-    
-    bool parametters    =   false;
-    int time_out        =   TIME_OUT_WIFI;
-
-    gpio_reset_pin(BLUE_LED);
-    gpio_set_direction(BLUE_LED, GPIO_MODE_OUTPUT);
 
     
     while(true){
-        /* Start ESP32 in Acces Point mode */
-        ap_object = wifi_init_softap();
-        ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler, &server));
-        ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler, &server));
-        
-        /* Start the WebServer and wait for configurations, then, stop it and detach handlers*/
-        server = start_webserver();
+        // Start ESP32 in Acces Point mode
+        esp_netif_t *ap_object = wifi_init_softap();
+
+        server = start_webserver();                // Start the WebServer for enter parametters
         while(!parametters){
             vTaskDelay(1000/portTICK_PERIOD_MS);
             time_out--;
@@ -158,8 +156,10 @@ void app_main(void)
                 time_out=TIME_OUT_WIFI;
                 parametters=true;
 
+                nvs_handle_t my_handle;
                 nvs_open("wifi",NVS_READWRITE, &my_handle);             // Open the nvs in read/write mode
-                
+                size_t required_size;
+
                 nvs_get_str(my_handle, "SSID", NULL, &required_size);   // Get the required size, and value of the SSID from NVS
                 char *wifi_ssid = malloc(required_size);
                 nvs_get_str(my_handle, "SSID", wifi_ssid, &required_size);
@@ -177,27 +177,18 @@ void app_main(void)
                 free(wifi_ssid);
             }
         }
-        parametters=false;                      // Reset parametters flag
-        time_out = TIME_OUT_WIFI;               // Reset time out counter
-        stop_webserver(server);                 // Stop the WebServer
+        parametters=false;                          // Reset parametters flag
+        time_out = TIME_OUT_WIFI;                   // Reset time out counter
+        stop_webserver(server);                     // Stop the WebServer
+        esp_wifi_stop();                            // Stop WiFi
+        esp_netif_destroy_default_wifi(ap_object);  // Destroy default WiFi AP
         
-        // Detach handlers from events and check if there is an error in the process
-        ESP_ERROR_CHECK(esp_event_handler_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler));
-        ESP_ERROR_CHECK(esp_event_handler_unregister(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler));
-        
-        // Start the ESP32 in STAtion mode
-        sta_object = wifi_init_sta();
+        esp_netif_t *sta_object = wifi_init_sta();  // Start the ESP32 in Station mode
 
-        // Waiting until the connection is established (WIFI_CONNECTED_BIT)
-        EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group, WIFI_CONNECTED_BIT | WIFI_FAIL_BIT, pdTRUE, pdFALSE, pdMS_TO_TICKS(10000));
-        if(bits & WIFI_CONNECTED_BIT){
-            wifi_ok = true;
-            loop    = true;
-        }
-        else{
-            wifi_ok = false;
-            loop    = false;
-        }
+        // Wait indefinitely for wifi either connected or failed
+        wait_wifi_event(s_wifi_event_group, &wifi_ok, &loop);
+
+        EventBits_t check_conn;
 
         while(loop){
             if(wifi_ok){
@@ -205,17 +196,46 @@ void app_main(void)
                 vTaskDelay(1000/portTICK_PERIOD_MS);
                 gpio_set_level(BLUE_LED, 0);
                 vTaskDelay(1000/portTICK_PERIOD_MS);
+
+                check_conn = xEventGroupGetBits(s_wifi_event_group);        // Check if the ESP is connected or disconnected
+                if(check_conn & WIFI_DISCONNECTED_BIT){wifi_ok = false;}    // If disconnected, then flag to reconnect
             }
             else{
-                EventBits_t check_con = xEventGroupWaitBits(s_wifi_event_group,
-                                                            WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
-                                                            pdTRUE, pdFALSE, portMAX_DELAY);
-                if(check_con & WIFI_CONNECTED_BIT){wifi_ok = true;}
+                printf("WIFI DISCONNETED!\n");
+                check_conn = xEventGroupWaitBits(s_wifi_event_group, WIFI_CONNECTED_BIT | WIFI_FAIL_BIT, pdTRUE,
+                                                pdFALSE, portMAX_DELAY);    // Wait indefinitely for wifi either connected or failed
+                if(check_conn & WIFI_CONNECTED_BIT){wifi_ok = true;}
                 else{loop=false;}
             }
         }
-        esp_wifi_stop();
-        esp_netif_destroy_default_wifi(sta_object);
-        esp_netif_destroy_default_wifi(ap_object);
+
+        esp_wifi_stop();                            // Stop WiFi
+        esp_netif_destroy_default_wifi(sta_object); // Destroy default WiFi STA
     }
 }
+
+void wait_wifi_event(EventGroupHandle_t wifi, bool *wifi_ok, bool *loop){
+    EventBits_t bits = xEventGroupWaitBits(wifi, WIFI_CONNECTED_BIT | WIFI_FAIL_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
+    
+    if(bits & WIFI_CONNECTED_BIT){
+        *wifi_ok = true; 
+        *loop = true;
+    }
+    else{
+        *wifi_ok = false;
+        *loop = false;
+    }
+}
+
+
+/*
+static esp_err_t favicon_get_handler(httpd_req_t *req)
+{
+	extern const unsigned char favicon_ico_start[] asm("_binary_favicon_ico_start");
+	extern const unsigned char favicon_ico_end[] asm("_binary_favicon_ico_end");
+	const size_t favicon_ico_size = (favicon_ico_end - favicon_ico_start);
+	httpd_resp_set_type(req, "image/x-icon");
+	httpd_resp_send(req, (const char *)favicon_ico_start, favicon_ico_size);
+	return ESP_OK;
+} 
+*/
