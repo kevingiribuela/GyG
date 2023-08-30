@@ -1,1 +1,1 @@
-# Biblioteca para utilizar el I2C del Atmega328P
+# Biblioteca para utilizar el I2C del Atmega2560
