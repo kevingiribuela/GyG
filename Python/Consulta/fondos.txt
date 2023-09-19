@@ -1,0 +1,7 @@
+# Ingrese la moneda que desea con su ABREVIATURA OFICIAL, por ej: bitcoin se escribe BTC. Seguido de la
+# cantidad de monedas que tenga, por ejemplo, si usted tiene 0.5  bitcoins debería agregar BTC 0.5.
+# Para conocer la abreviatura oficial, ingresa a Google Finance y busca la moneda que desees agregar.
+# !!!!!!!!!!! *************** NO MODIFIQUES LAS LINEAS DE ARRIBA **************** !!!!!!!!!!!!!!!!!!
+BTC 0.01087788
+XRP 166.53335851
+ADA 150
