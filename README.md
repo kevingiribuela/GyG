@@ -8,11 +8,6 @@ Here you can find differents projects made by Santiago Garaventta and Kevin Giri
 
 Please, feel free to give us feedback if you think that it is necessary, we'll be VERY happy to open a pull request (especially if you are an engineer student from Universidad Nacional de La Plata)...
 
-
-**Currently only ESP32 branch is ready to use**. You should be able to see and clone that branch.
-
-<img src="images/branches.png"  width="200" height="200">
-
 ## Who are we?
 We're two electronic engineers, both proudly graduated from Universidad Nacional de La Plata.
 
