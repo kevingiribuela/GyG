@@ -4,3 +4,4 @@ ESP32/AP-WebServer/sdkconfig.ci
 ESP32/AP-WebServer/build/
 ESP32/AP-WebServer/.vscode/
 ESP32/AP-WebServer/.devcontainer/
+.vscode/
