@@ -8,10 +8,6 @@
 #include "esp_wifi.h"
 #include "ctype.h"
 
-extern bool parametters;
-extern nvs_handle_t my_handle;
-
-
 esp_err_t homepage_get_handler(httpd_req_t *req);
 
 esp_err_t data_get_handler(httpd_req_t *req);

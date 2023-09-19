@@ -1,5 +1,7 @@
 #include "WebServer.h"
 
+extern bool parametters;
+
 // Homepage handler
 esp_err_t homepage_get_handler(httpd_req_t *req)
 {
@@ -9,7 +11,7 @@ esp_err_t homepage_get_handler(httpd_req_t *req)
     if(error != ESP_OK){
         printf("Error printing the web page in server mode, error code: %d \n",error);
     }
-    printf("WebServer configuration succesfully loaded!\n");
+    printf("Homepage loaded successfully!\n");
     return ESP_OK;
 }
 const httpd_uri_t homepage = {
@@ -47,17 +49,18 @@ const httpd_uri_t homepage = {
     query = urlDecode(query);
     
     /* Preparing the NVS */
+    nvs_handle_t my_handle;
     nvs_open("wifi",NVS_READWRITE, &my_handle);
 
     /* Parametters configuration */
     // SSID:
     httpd_query_key_value(query, "SSID", buff, buff_len);
     if(buff[0]=='\0'){
-        printf("SSID: default.\n");
+        printf("SSID read: default.\n");
     }
     else{
         nvs_set_str(my_handle,"SSID",buff);
-        printf("SSID: %s\n",buff);
+        printf("SSID read: %s\n",buff);
         ssid=true;
     }
     // Password:
@@ -65,23 +68,23 @@ const httpd_uri_t homepage = {
     if(buff[0]=='\0'){
         if(ssid){
             nvs_set_str(my_handle,"PSWD",buff);
-            printf("PSWD: %s\n",buff);
+            printf("PSWD read: %s\n",buff);
             ssid = false;
         }
         else{
-            printf("PSWD: default.\n");
+            printf("PSWD read: default.\n");
         }
     }
     else{
         nvs_set_str(my_handle,"PSWD",buff);
-        printf("PSWD: %s\n",buff);
+        printf("PSWD read: %s\n",buff);
     }
     
     nvs_commit(my_handle);
     nvs_close(my_handle);
     free(query);
     free(buff);
-    parametters = true;
+    parametters=true;
     return ESP_OK;
 }
 const httpd_uri_t data = {
@@ -119,29 +122,8 @@ httpd_handle_t start_webserver(void)
 void stop_webserver(httpd_handle_t server)
 {
     // Stop the httpd server
-    printf("Stoping the WebServer...\n");
+    printf("Stopping the WebServer...\n");
     httpd_stop(server);
-} 
-
-// Disconnect WebServer handler
-void disconnect_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
-{
-    httpd_handle_t* server = (httpd_handle_t*) arg;
-    if (*server) {
-        printf("Stopping webserver\n");
-        stop_webserver(*server);
-        *server = NULL;
-    }
-}
-
-// Connect WebServer handler
-void connect_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
-{
-    httpd_handle_t* server = (httpd_handle_t*) arg;
-    if (*server == NULL) {
-        printf("Connect handler executed...\n");
-        *server = start_webserver();
-    }
 }
 
 char *urlDecode(const char *str) {
